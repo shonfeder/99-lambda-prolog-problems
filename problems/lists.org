@@ -1,0 +1,94 @@
+#+TITLE: Lists
+
+ A list is either empty or it is composed of a first element (head) and a tail,
+ which is a list itself. In λProlog, we represent the empty list by the atom
+ =[]= and a non-empty list by a term =[H|T]= where =H= denotes the head and =T=
+ denotes the tail.
+
+* 1.01 (*) Find the last element of a list.
+
+Example:
+
+#+begin_src teyjus-edit
+> list.last [1,2,3,4] X.
+X = some 4
+#+end_src
+
+* 1.02 (*) Find the last but one element of a list.
+
+Example:
+
+#+begin_src teyjus-edit
+> list.second-last [1,2,3,4] X.
+
+Success:
+  X = some 4
+#+end_src
+
+* 1.03 (*) Find the =n='th element of a list.
+
+The first element in the list is number 0.
+Example:
+
+#+begin_src teyjus-edit
+> list.nth [1,2,3,4,5] 2 X.
+
+Success:
+  X = some 3
+#+end_src
+
+* 1.04 (*) Find the number of elements of a list.
+
+The predicate should work with the arguments in any mode.
+
+#+begin_src teyjus-edit
+> list.len [1,2,3,4] X.
+
+Success:
+  X = 4
+
+> list.len L 4.
+
+Success:
+  L = [X0, X1, X2, X3]
+
+> list.len L X.
+
+Success:
+  L = []
+  X = 0
+
+More? (Y/n)
+y
+
+Success:
+  L = [X0]
+  X = 1
+
+More? (Y/n)
+y
+
+Success:
+  L = [X0, X1]
+  X = 2
+#+end_src
+
+* 1.05 (*) Reverse a list.
+
+The predicate should work both ways.
+
+#+begin_src teyjus-edit
+> list.reverse [1,2,3,4] X.
+
+Success:
+  X = [4,3,2,1]
+
+> list.reverse X [4,3,2,1].
+
+Success:
+  X = [1,2,3,4]
+#+end_src
+
+* 1.06 (*) Find out whether a list is a palindrome.
+
+A palindrome can be read forward or backward; e.g. ["x","a","m","a","x"].
