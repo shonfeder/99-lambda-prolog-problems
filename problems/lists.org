@@ -92,3 +92,185 @@ Success:
 * 1.06 (*) Find out whether a list is a palindrome.
 
 A palindrome can be read forward or backward; e.g. ["x","a","m","a","x"].
+
+* 1.07.1 (**) Define a type to represent nested lists
+
+Unlike its dynamically typed cousin, λProlog doesn't support simple heterogeneous
+lists. Define a datatype =nlist A= that allows constructing possibly nested
+lists of elements of type =A=.
+
+An example, using =ls= for the constructor of nested lists and =el= to construct
+single elements:
+
+#+begin_src teyjus-edit
+NestedList = ls [el 1, ls [el 2, ls [el 3, el 4], el 5]]
+#+end_src
+* 1.07.2 (**) Flatten a nested list structure.
+
+Transform a list, possibly holding lists as elements, into a 'flat' list by
+replacing each list with its elements (recursively).
+
+Example:
+
+#+begin_src teyjus-edit
+> my_flatten (ls [el 1, ls [el 2, ls [el 3, el 4], el 5]]) X.
+
+Success:
+  X = [1, 2, 3, 4, 5]
+#+end_src
+
+Hint: Use the predefined predicate =pred append i:list A, i:list A, o:list A=
+
+* 1.08 (**) Eliminate consecutive duplicates of list elements.
+
+If a list contains repeated elements they should be replaced with a single copy
+of the element. The order of the elements should not be changed.
+
+Example:
+
+#+begin_src teyjus-edit
+> compress [1,1,1,1,2,3,3,1,1,4,5,5,5,5] X.
+
+Success:
+  X = [1,2,3,1,4,5]
+#+end_src
+
+* 1.09 (**) Pack consecutive duplicates of list elements into sublists.
+
+If a list contains repeated elements they should be placed in separate sublists.
+
+Example:
+
+#+begin_src teyjus-edit
+> pack [1,1,1,1,2,3,3,1,1,4,5,5,5,5] X.
+
+Success:
+  X = [[1,1,1,1],[2],[3,3],[1,1],[4],[5,5,5,5]]
+#+end_src
+
+* 1.10 (*) Run-length encoding of a list.
+
+Use the result of problem 1.09 to implement the so-called run-length encoding data compression method. Consecutive duplicates of elements are encoded as terms [N,E] where N is the number of duplicates of the element E.
+
+Example:
+
+#+begin_src teyjus-edit
+> encode ["a","a","a","a","b","c","c","a","a","d","e","e","e","e"] X.
+
+Success:
+  X = [pr 4 "a", pr 1 "b", pr 2 "c", pr 2 "a", pr 1 "d", pr 4 "e"]
+#+end_src
+
+* 1.11 (*) Modified run-length encoding.
+
+Modify the result of problem 1.10 in such a way that if an element has no duplicates it is simply copied into the result list. Only elements with duplicates are transferred as [N,E] terms.
+
+Note: This will require defining a new datatype.
+
+Example:
+
+TODO fix formatting
+#+begin_src teyjus-edit
+
+> encode-compact ["a","a","a","a","b","c","c","a","a","d","e","e","e","e"] X.
+
+Success:
+  X = [many 4 "a", one "b", many 2 "c", many 2 "a", one "d", many 4 "e"]
+#+end_src
+
+* 1.12 (**) Decode a run-length encoded list.
+
+Given a run-length code list generated as specified in problem 1.11. Construct
+its uncompressed version.
+
+* 1.13 (**) Run-length encoding of a list (direct solution).
+
+Implement the so-called run-length encoding data compression method directly. I.e. don't explicitly create the sublists containing the duplicates, as in problem 1.09, but only count them. As in problem 1.11, simplify the result list by replacing the singleton terms [1,X] by X.
+
+Example:
+
+#+begin_src teyjus-edit
+> encode-direct ["a","a","a","a","b","c","c","a","a","d","e","e","e","e"] X.
+
+Success:
+  X = [many 4 "a", one "b", many 2 "c", many 2 "a", one "d", many 4 "e"]
+#+end_src
+
+* 1.14 (*) Duplicate the elements of a list.
+
+Example:
+#+begin_src teyjus-edit
+> duplicate [1,2,3,4,5] X.
+
+Success:
+  X = [1,1,2,2,3,3,4,4,5,5]
+#+end_src
+
+* 1.15 (**) Duplicate the elements of a list a given number of times.
+
+Example:
+
+#+begin_src teyjus-edit
+> duplicate-n 3 [1,2,3] X.
+
+Success:
+  X = [1,1,1,2,2,2,3,3,3]
+#+end_src
+
+What are the results of the goal:
+
+#+begin_src teyjus-edit
+> duplicate-n 3 X Y.
+#+end_src
+
+* 1.16 (**) Drop every N'th element from a list.
+
+Example:
+
+#+begin_src teyjus-edit
+> drop [1,2,3,4,5,6,7,8] 3 X.
+
+Success:
+  X = [1,2,4,5,7,8]
+#+end_src
+
+* 1.17 (*) Split a list into two parts; the length of the first part is given.
+Do not use any predefined predicates.
+
+Example:
+
+#+begin_src teyjus-edit
+> split 3 [1,2,3,4,5,6,7,8,9,10] L1 L2.
+
+Success:
+  L1 = [1,2,3]
+  L2 = [4,5,6,7,8,9,10]
+#+end_src
+
+* 1.18 (**) Extract a slice from a list.
+
+Given two indices, I and K, the slice is the list containing the elements between the I'th and K'th element of the original list (both limits included). Start counting the elements with 0.
+
+Example:
+
+#+begin_src teyjus-edit
+> slice 4 8 [1,2,3,4,5,6,7,8,9,10] L.
+
+Success:
+  L = [3,4,5,6,7]
+#+end_src
+
+* 1.19 (**) Rotate a list N places to the left.
+Examples:
+
+#+begin_src teyjus-edit
+?- rotate ["a","b","c","d","e","f","g","h"] 3 X.
+X = ["d","e","f","g","h","a","b","c"]
+
+?- rotate ["a","b","c","d","e","f","g","h"] -2 X.
+X = ["g","h","a","b","c","d","e","f"]
+#+end_src
+
+Hint: Use the predefined predicates =pred std.length i:list A, o:int= and
+=pred append i:list A, i:list A, o:list A=, as well as the result of problem
+1.17.
