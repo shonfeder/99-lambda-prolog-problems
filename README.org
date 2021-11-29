@@ -1,14 +1,13 @@
 #+TITLE: 99 λProlog Problems
 
-An adaptation of the classic [[https://sites.google.com/site/prologsite/prolog-problems][99 Prolog Problems]] by [[https://sites.google.com/site/prologsite/author][Werner Hett]] to higher-order
-logic programming in [[http://www.lix.polytechnique.fr/~dale/lProlog/][λProlog]].
+A (WIP) adaptation of the classic [[https://sites.google.com/site/prologsite/prolog-problems][99 Prolog Problems]] by [[https://sites.google.com/site/prologsite/author][Werner Hett]] to
+higher-order logic programming in [[http://www.lix.polytechnique.fr/~dale/lProlog/][λProlog]].
 
 Before undertaking the problems, you may wish to review this slight adaptation
 of Hett's wonderful guidance:
 
 * The spirit of the problems
 
-#+begin_src
 The purpose of this problem collection is to give you the opportunity to
 practice your skills in higher-order logic programming. Your goal should be to
 find the most elegant solution of the given problems. Efficiency is important,
@@ -21,11 +20,8 @@ a declarative statement.  Do not describe procedurally, what the predicate does,
 but write down a logical statement which includes the arguments of the
 predicate, and then describe the flow of data through the unification of terms.
 
-TODO
-
 Construct types to formalize the possible data for the predicates and
 functions, then specify the types and modes for their arguments.
-#+end_src
 
 * The problems
 
@@ -39,4 +35,11 @@ Problems marked with three asterisks (***) are more difficult. You may need more
 time (i.e. a few hours or more) to find a good solution.
 #+end_src
 
-- [[file:problems/lists.org][Lists]] :: [[file:solutions/lists.mod][solutions]]
+- [[file:problems/lists.org][Lists]]
+
+* The solutions
+
+Solutions are written targeting the [[https://github.com/LPCIC/elpi][Elpi]] dialect and tested by running with
+Elpi.
+
+[[file:solutions/lists.mod][- Lists]]
