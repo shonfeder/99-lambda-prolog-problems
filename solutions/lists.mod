@@ -36,9 +36,29 @@ nth [_|Xs] N X        :- N > 0
                        & nth Xs {calc (N - 1)} X.
 
 % 1.04
-pred len o:list A, o: Int.
-len []    0.
-len [_|T] N :- N is {len T} + 1.
+pred len o:list A, o:int.
+% `len Ls N` is true when `N` is the length of `Ls`.
+pred len.aux o:list A, o:int.
+% When `N` is bound, we count down from `N` to `0`, removing one element of
+% `Ls` with each unit of `N` removed. If we arrive at `[]` and `0` at the
+% same time, we are done, and cannot possibly have more conclusions (thus the cut).
+len Ls N :- not (var N),
+          ( len.aux [] 0
+          & pi T M M'\
+            len.aux [_|T] M :- M' is M - 1,
+                               len.aux T M'
+          ) => len.aux Ls N, !.
+% When `N` is free, then we count up, starting from `0` to `N`, constructing
+% a list by adding a free variable to our list each time a unit is added to
+% `N`. When the list we're constructing can be unified with the input `Ls`
+% then we're at our `N`. If `Ls` is left partial in the tail, then we can
+% keep generating longer lists for `Ls` on backtracking.
+len Ls N :- var N,
+          ( len.aux Ls N
+          & pi L M M'\
+            len.aux L M :- M' is M + 1,
+                           len.aux [_|L] M'
+          ) => len.aux [] 0.
 
 % 1.05
 pred rev o:list A, o:list A.
