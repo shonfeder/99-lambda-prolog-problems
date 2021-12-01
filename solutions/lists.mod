@@ -203,15 +203,14 @@ drop-nth N Xs Dropped :-
 % of Ls of length N, and Back is the remaining suffix of
 % Ls. It is a fatal error if N is a negative number.
 pred split i:int, i:list A, o:list A, o:list A.
-split N Ls Front Back :- print "split > " N Ls Front Back, fail.
+% split N Ls Front Back :- print "split > " N Ls Front Back, fail.
 split N _ _ _ :- N < 0, std.fatal-error "split with negative number".
-% split 0 Xs [] Xs.
 split 0 Xs _ Xs.
 split N [X|Xs] [X|Front] Back :- split {calc (N - 1)} Xs Front Back.
 
 % 1.18
 pred slice i:int, i:int, i:list A, o:list A.
-slice I J Xs Slice :- print "slice > " I J Xs Slice, fail.
+% slice I J Xs Slice :- print "slice > " I J Xs Slice, fail.
 slice I J _ _ :- J < I, std.fatal-error "slice with second index < first".
 slice I J Xs Slice :- split I Xs _ Xs'
                    & M is (J - I)
@@ -219,9 +218,8 @@ slice I J Xs Slice :- split I Xs _ Xs'
                    .
 
 % 1.19
-% pred rotate i:list A, i:int, o:list A.
-% rotate Ls N Ls' :- split N Ls Front Back, std.append Front Back Ls'.
-
+pred rotate i:list A, i:int, o:list A.
+rotate Ls N Ls' :- split N Ls Front Back, std.append Back Front Ls'.
 }
 
 
@@ -270,6 +268,6 @@ main :- test (list.last [1, 2, 3, 4] (some 4))
       & test (list.drop-nth 3 [1,2,3,4,5,6,7,8] [1,2,4,5,7,8])
       & test (list.split 3 [1,2,3,4,5,6,7,8,9,10] [1,2,3] [4,5,6,7,8,9,10])
       & test (list.slice 4 8 [1,2,3,4,5,6,7,8,9,10] [5,6,7,8,9])
-      % & test (list.rotate ["a","b","c","d","e","f","g","h"] 3 ["d","e","f","g","h","a","b","c"])
+      & test (list.rotate [1,2,3,4,5,6,7,8] 3 [4,5,6,7,8,1,2,3])
       & print "ALL TESTS PASSED"
       .
