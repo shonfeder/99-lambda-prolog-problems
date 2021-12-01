@@ -219,7 +219,18 @@ slice I J Xs Slice :- split I Xs _ Xs'
 
 % 1.19
 pred rotate i:list A, i:int, o:list A.
-rotate Ls N Ls' :- split N Ls Front Back, std.append Back Front Ls'.
+rotate Ls N Ls' :- if (N > 0)
+                    ( ( split N Ls Front Back
+                      & std.append Back Front Ls' ) )
+                    ( ( M is N + {len Ls}
+                      & split M Ls Front Back
+                      & std.append Back Front Ls' ) ).
+
+% 1.20
+pred select-nth i:int, i:list A, o:A, o:list A.
+select-nth N Ls X Rest :- len Prefix {calc (N - 1)}
+                       &  std.append Prefix [X|Suffix] Ls
+                       &  std.append Prefix Suffix Rest.
 }
 
 
@@ -269,5 +280,7 @@ main :- test (list.last [1, 2, 3, 4] (some 4))
       & test (list.split 3 [1,2,3,4,5,6,7,8,9,10] [1,2,3] [4,5,6,7,8,9,10])
       & test (list.slice 4 8 [1,2,3,4,5,6,7,8,9,10] [5,6,7,8,9])
       & test (list.rotate [1,2,3,4,5,6,7,8] 3 [4,5,6,7,8,1,2,3])
+      & test (list.rotate [1,2,3,4,5,6,7,8] -2 [7,8,1,2,3,4,5,6])
+      & test (list.select-nth 2 [1,2,3,4] 2 [1,3,4])
       & print "ALL TESTS PASSED"
       .
