@@ -42,23 +42,23 @@ pred len.aux o:list A, o:int.
 % When `N` is bound, we count down from `N` to `0`, removing one element of
 % `Ls` with each unit of `N` removed. If we arrive at `[]` and `0` at the
 % same time, we are done, and cannot possibly have more conclusions (thus the cut).
-len Ls N :- not (var N),
-          ( len.aux [] 0
-          & pi T M M'\
-            len.aux [_|T] M :- M' is M - 1,
-                               len.aux T M'
-          ) => len.aux Ls N, !.
+len Ls N :-
+        if (var N)
+          ( ( len.aux Ls N
+            & pi L M M'\
+              len.aux L M :- M' is M + 1, len.aux [_|L] M'
+             ) => len.aux [] 0 )
+          ( ( len.aux [] 0
+            & pi T M M'\ len.aux [_|T] M :- M' is M - 1, len.aux T M'
+            ) => len.aux Ls N, ! ).
+
 % When `N` is free, then we count up, starting from `0` to `N`, constructing
 % a list by adding a free variable to our list each time a unit is added to
 % `N`. When the list we're constructing can be unified with the input `Ls`
 % then we're at our `N`. If `Ls` is left partial in the tail, then we can
 % keep generating longer lists for `Ls` on backtracking.
-len Ls N :- var N,
-          ( len.aux Ls N
-          & pi L M M'\
-            len.aux L M :- M' is M + 1,
-                           len.aux [_|L] M'
-          ) => len.aux [] 0.
+% len Ls N :- var N,
+
 
 % 1.05
 pred rev o:list A, o:list A.
@@ -199,25 +199,31 @@ drop-nth N Xs Dropped :-
               std.map-filter Opt (a\b\some b = a) Dropped.
 
 % 1.17
+% `split N Ls Front Back` is true when Front is a prefix
+% of Ls of length N, and Back is the remaining suffix of
+% Ls. It is a fatal error if N is a negative number.
 pred split i:int, i:list A, o:list A, o:list A.
-split I J Xs Slice :- print "split > " I J Xs Slice, fail.
+split N Ls Front Back :- print "split > " N Ls Front Back, fail.
 split N _ _ _ :- N < 0, std.fatal-error "split with negative number".
-split 0 Xs [] Xs.
-split _ [] [] [].
+% split 0 Xs [] Xs.
+split 0 Xs _ Xs.
 split N [X|Xs] [X|Front] Back :- split {calc (N - 1)} Xs Front Back.
 
 % 1.18
 pred slice i:int, i:int, i:list A, o:list A.
 slice I J Xs Slice :- print "slice > " I J Xs Slice, fail.
-slice I J Xs Slice :- std.fatal-error " "
+slice I J _ _ :- J < I, std.fatal-error "slice with second index < first".
 slice I J Xs Slice :- split I Xs _ Xs'
-                   &  split {calc (J - I)} Xs' Slice _
+                   & M is (J - I)
+                   & split M Xs' Slice _
                    .
 
 % 1.19
 % pred rotate i:list A, i:int, o:list A.
 % rotate Ls N Ls' :- split N Ls Front Back, std.append Front Back Ls'.
+
 }
+
 
 pred test i:prop.
 test P :- ( P
@@ -238,6 +244,7 @@ main :- test (list.last [1, 2, 3, 4] (some 4))
       & test (list.nth [1,2,3,4] 2 (some 3))
       & test (list.len [1,2,3,4] 4)
       & test (list.len L 4 & L = [_, _, _, _])
+      & test (not (list.len [1,2,3,4,5] 4))
       & test (list.reverse [1,2,3,4] [4,3,2,1])
       & test (list.reverse X [4,3,2,1] & X = [1,2,3,4])
       & test (list.is-palindrome ["x","a","m","a","x"])
@@ -262,6 +269,7 @@ main :- test (list.last [1, 2, 3, 4] (some 4))
       & test (list.duplicate-n 3 [1,2,3] [1,1,1,2,2,2,3,3,3])
       & test (list.drop-nth 3 [1,2,3,4,5,6,7,8] [1,2,4,5,7,8])
       & test (list.split 3 [1,2,3,4,5,6,7,8,9,10] [1,2,3] [4,5,6,7,8,9,10])
-      & test (list.slice 4 8 [1,2,3,4,5,6,7,8,9,10] ZZ, print ZZ)
+      & test (list.slice 4 8 [1,2,3,4,5,6,7,8,9,10] [5,6,7,8,9])
+      % & test (list.rotate ["a","b","c","d","e","f","g","h"] 3 ["d","e","f","g","h","a","b","c"])
       & print "ALL TESTS PASSED"
       .
