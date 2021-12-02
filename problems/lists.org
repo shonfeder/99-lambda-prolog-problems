@@ -279,7 +279,7 @@ Hint: Use the predefined predicates =pred std.length i:list A, o:int= and
 =pred append i:list A, i:list A, o:list A=, as well as the result of problem
 1.17.
 
-* 1.20 (*) Remove the N'th element from a list.
+* 1.20 (*) Select and remove the N'th element from a list.
 
 Example:
 
@@ -289,4 +289,16 @@ Example:
 Success:
     X = 2
     R = [1,3,4]
+#+end_src
+
+
+* 1.21 (*) Insert an element at a given position into a list.
+Example:
+
+#+begin_src teyjus-edit
+> insert-at 10 2 [1,2,3,4] L.
+
+Success:
+
+L = [1,2,10,3,4]
 #+end_src

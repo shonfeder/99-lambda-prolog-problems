@@ -230,20 +230,25 @@ rotate Ls N Ls' :- if (N > 0)
 pred select-nth i:int, i:list A, o:A, o:list A.
 select-nth N Ls X Rest :- len Prefix {calc (N - 1)}
                        &  std.append Prefix [X|Suffix] Ls
-                       &  std.append Prefix Suffix Rest.
+                       &  std.append Prefix Suffix Rest
+                       .
+
+% 1.21
+pred insert-at i:A, i:int, i:list A, o:list A.
+insert-at X N Ls Ls' :- len Prefix {calc N}
+                     &  std.append Prefix Suffix Ls
+                     &  std.append Prefix [X|Suffix] Ls'
+                     .
 }
 
 
 pred test i:prop.
-test P :- ( P
-          & !
-          )
-        ; ( Msg is "Test '" ^ {term_to_string P} ^ "' FAILED!"
-          & print Msg
-          & !
-          & false
-          )
-          .
+test P :-  P & !.
+test P :- Msg is "Test '" ^ {term_to_string P} ^ "' FAILED!"
+       &  print Msg
+       &  !
+       &  fail
+       .
 
 shorten list.{ ls, el, one, many }.
 
@@ -282,5 +287,6 @@ main :- test (list.last [1, 2, 3, 4] (some 4))
       & test (list.rotate [1,2,3,4,5,6,7,8] 3 [4,5,6,7,8,1,2,3])
       & test (list.rotate [1,2,3,4,5,6,7,8] -2 [7,8,1,2,3,4,5,6])
       & test (list.select-nth 2 [1,2,3,4] 2 [1,3,4])
+      & test (list.insert-at 10 2 [1,2,3,4] [1,2,10,3,4])
       & print "ALL TESTS PASSED"
       .
