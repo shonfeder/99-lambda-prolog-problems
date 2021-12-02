@@ -244,6 +244,13 @@ insert-at X N Ls Ls' :- len Prefix {calc N}
                      &  std.append Prefix Suffix Ls
                      &  std.append Prefix [X|Suffix] Ls'
                      .
+
+% 1.22
+pred range i:int, i:int, o:List A.
+range N N' _ :- N' < N, std.fatal-error "`range` with second index smaller than first".
+range N N  [N].
+range N N' [N|Ns] :- range {util.succ N} N' Ns.
+
 }
 
 
@@ -257,8 +264,8 @@ test P :- Msg is "Test '" ^ {term_to_string P} ^ "' FAILED!"
 
 shorten list.{ ls, el, one, many }.
 
-pred main.
-main :- test (list.last [1, 2, 3, 4] (some 4))
+pred tests.
+tests :- test (list.last [1, 2, 3, 4] (some 4))
       & test (list.second-last [1,2,3,4] (some 3))
       & test (list.nth [1,2,3,4] 2 (some 3))
       & test (list.len [1,2,3,4] 4)
@@ -271,17 +278,17 @@ main :- test (list.last [1, 2, 3, 4] (some 4))
       & test (list.compress [1,1,1,1,2,3,3,1,1,4,5,5,5,5] [1,2,3,1,4,5])
       & test (list.pack [1,1,1,1,2,3,3,1,1,4,5,5,5,5] [[1,1,1,1],[2],[3,3],[1,1],[4],[5,5,5,5]])
       & test (list.encode
-                ["a","a","a","a","b","c","c","a","a","d","e","e","e","e"]
-                [pr 4 "a", pr 1 "b", pr 2 "c", pr 2 "a", pr 1 "d", pr 4 "e"])
+                    ["a","a","a","a","b","c","c","a","a","d","e","e","e","e"]
+                    [pr 4 "a", pr 1 "b", pr 2 "c", pr 2 "a", pr 1 "d", pr 4 "e"])
       & test (list.encode-compact
-                ["a","a","a","a","b","c","c","a","a","d","e","e","e","e"]
-                [many 4 "a", one "b", many 2 "c", many 2 "a", one "d", many 4 "e"])
+                    ["a","a","a","a","b","c","c","a","a","d","e","e","e","e"]
+                    [many 4 "a", one "b", many 2 "c", many 2 "a", one "d", many 4 "e"])
       & test (list.decode
-                [many 4 "a", one "b", many 2 "c", many 2 "a", one "d", many 4 "e"]
-                ["a","a","a","a","b","c","c","a","a","d","e","e","e","e"])
+                    [many 4 "a", one "b", many 2 "c", many 2 "a", one "d", many 4 "e"]
+                    ["a","a","a","a","b","c","c","a","a","d","e","e","e","e"])
       & test (list.encode-direct
-                ["a","a","a","a","b","c","c","a","a","d","e","e","e","e"]
-                [many 4 "a", one "b", many 2 "c", many 2 "a", one "d", many 4 "e"])
+                    ["a","a","a","a","b","c","c","a","a","d","e","e","e","e"]
+                    [many 4 "a", one "b", many 2 "c", many 2 "a", one "d", many 4 "e"])
       & test (list.duplicate [1,2,3,4,5] [1,1,2,2,3,3,4,4,5,5])
       & test (list.repeat 4 "a" ["a", "a", "a", "a"])
       & test (list.concat [[1,2,3], [4,5,6], [7,8]] [1,2,3,4,5,6,7,8])
@@ -293,5 +300,8 @@ main :- test (list.last [1, 2, 3, 4] (some 4))
       & test (list.rotate [1,2,3,4,5,6,7,8] -2 [7,8,1,2,3,4,5,6])
       & test (list.select-nth 2 [1,2,3,4] 2 [1,3,4])
       & test (list.insert-at 10 2 [1,2,3,4] [1,2,10,3,4])
-      & print "ALL TESTS PASSED"
+      & test (list.range 4 9 [4,5,6,7,8,9])
       .
+
+pred main.
+main :- tests & print "ALL TESTS PASSED".
