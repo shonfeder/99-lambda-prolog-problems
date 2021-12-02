@@ -11,6 +11,11 @@ repeat N X [X|Xs] :- N > 0
 
 pred is-some o:option A.
 is-some (some _).
+
+pred succ o:int, o:int.
+succ N N' :- not (var N), N' is N + 1, !.
+succ N N' :- not (var N'), N is N' - 1, !.
+succ N N' :- var N, var N', declare_constraint (succ N N') [N, N'].
 }
 
 namespace list {
