@@ -251,6 +251,24 @@ range N N' _ :- N' < N, std.fatal-error "`range` with second index smaller than 
 range N N  [N].
 range N N' [N|Ns] :- range {util.succ N} N' Ns.
 
+% 1.23
+% FIXME: Sometimes gets stuck at random.int. Report bug?
+pred select-rnd i:int, i:list A, o:list A.
+pred select-rnd.aux i:int, i:int, i:list A, o:list A.
+select-rnd N Ls Xs :-
+    random.self_init,
+    ( select-rnd.aux N _ _ Xs
+    & select-rnd.aux _ 0 _ Xs
+    & pi M M' Len Len' Opts Acc X Rest Idx\
+        select-rnd.aux M Len Opts Acc :-
+            random.int Len Idx,
+            select-nth Idx Opts X Rest,
+            util.succ M M',
+            util.succ Len' Len,
+            select-rnd.aux M' Len' Rest [X|Acc]
+    ) => select-rnd.aux 0 {len Ls} Ls []
+    .
+
 }
 
 
@@ -301,6 +319,8 @@ tests :- test (list.last [1, 2, 3, 4] (some 4))
       & test (list.select-nth 2 [1,2,3,4] 2 [1,3,4])
       & test (list.insert-at 10 2 [1,2,3,4] [1,2,10,3,4])
       & test (list.range 4 9 [4,5,6,7,8,9])
+      % FIXME
+      % & test (list.select-rnd 3 [1,2,3,4,5,6,7,8] [_, _, _])
       .
 
 pred main.
