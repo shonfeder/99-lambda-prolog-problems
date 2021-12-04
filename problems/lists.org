@@ -337,3 +337,42 @@ Of course, your results will be random.
 
 Hint: Use the built-in random number generator random.int/2 and the result of
 problem 1.20.
+
+* 1.24 (*) Lotto: Draw N different random numbers from the set 1..M.
+
+The selected numbers shall be put into a result list.
+Example:
+
+#+begin_src teyjus-edit
+> lotto 6 49 L.
+
+Success:
+    L = [23,1,17,33,21,37]
+#+end_src
+
+Hint: Combine the solutions of problems 1.22 and 1.23.
+
+* 1.25 (*) Generate a random permutation of the elements of a list.
+
+Example:
+#+begin_src teyjus-edit
+> rnd_permu [1,2,3,4,5,6] L.
+
+Success:
+
+    L = [4,3,6,1,2,5]
+#+end_src
+
+Hint: Use the solution of problem 1.23.
+
+* 1.26 (**) Generate the combinations of K distinct objects chosen from the N elements of a list
+
+In how many ways can a committee of 3 be chosen from a group of 12 people? We all know that there are C(12,3) = 220 possibilities (C(N,K) denotes the well-known binomial coefficients). For pure mathematicians, this result may be great. But we want to really generate all the possibilities (via backtracking).
+
+Example:
+
+> combination(3,[a,b,c,d,e,f],L).
+L = [a,b,c] ;
+L = [a,b,d] ;
+L = [a,b,e] ;
+...
