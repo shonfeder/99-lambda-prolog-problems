@@ -246,13 +246,12 @@ insert-at X N Ls Ls' :- len Prefix {calc N}
                      .
 
 % 1.22
-pred range i:int, i:int, o:List A.
+pred range i:int, i:int, o:list A.
 range N N' _ :- N' < N, std.fatal-error "`range` with second index smaller than first".
 range N N  [N].
 range N N' [N|Ns] :- range {util.succ N} N' Ns.
 
 % 1.23
-% FIXME: Sometimes gets stuck at random.int. Report bug?
 pred select-rnd i:int, i:list A, o:list A.
 pred select-rnd.aux i:int, i:int, i:list A, o:list A.
 select-rnd N Ls Xs :-
@@ -269,7 +268,21 @@ select-rnd N Ls Xs :-
     ) => select-rnd.aux 0 {len Ls} Ls []
     .
 
-% TODO: 1.24
+% 1.24
+pred lotto i:int, i:int, o:list int.
+pred lotto.draw i:int, o:list int.
+lotto Draws Limit Nums :-
+  random.self_init,
+  ( lotto.draw Draws Nums
+  & pi Draw Draw' N Acc\
+      lotto.draw Draw Acc :-
+        random.int Limit N,
+        util.succ Draw Draw',
+        lotto.draw Draw' [N|Acc]
+  ) => lotto.draw 0 []
+  .
+
+
 % TODO: 1.25
 
 }
@@ -322,8 +335,8 @@ tests :- test (list.last [1, 2, 3, 4] (some 4))
       & test (list.select-nth 2 [1,2,3,4] 2 [1,3,4])
       & test (list.insert-at 10 2 [1,2,3,4] [1,2,10,3,4])
       & test (list.range 4 9 [4,5,6,7,8,9])
-      % FIXME
-      % & test (list.select-rnd 3 [1,2,3,4,5,6,7,8] [_, _, _])
+      & test (list.select-rnd 3 [1,2,3,4,5,6,7,8] [_, _, _])
+      & test (list.lotto 3 10 LottoDraw, std.forall LottoDraw (x\x < 10))
       .
 
 pred main.
