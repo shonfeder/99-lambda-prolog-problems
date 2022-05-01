@@ -47,15 +47,26 @@ pred len.aux o:list A, o:int.
 % When `N` is bound, we count down from `N` to `0`, removing one element of
 % `Ls` with each unit of `N` removed. If we arrive at `[]` and `0` at the
 % same time, we are done, and cannot possibly have more conclusions (thus the cut).
+len _ N :-
+    ground_term N,
+    N < 0,
+    std.fatal-error "len with negative number".
 len Ls N :-
-        if (var N)
-          ( ( len.aux Ls N
-            & pi L M M'\
-              len.aux L M :- M' is M + 1, len.aux [_|L] M'
-             ) => len.aux [] 0 )
-          ( ( len.aux [] 0
-            & pi T M M'\ len.aux [_|T] M :- M' is M - 1, len.aux T M'
-            ) => len.aux Ls N, ! ).
+    var Ls, var N,
+    ( ( len.aux Ls N
+      & pi L M M'\
+        len.aux L M :- M' is M + 1, len.aux [_|L] M'
+      ) => len.aux [] 0
+    ).
+len Ls N :-
+    not (var Ls),
+    std.length Ls N,
+    !.
+len Ls N :-
+    not (var N),
+    ( ( len.aux [] 0
+      & pi T M M'\ len.aux [_|T] M :- M' is M - 1, len.aux T M'
+      ) => len.aux Ls N, ! ).
 
 % When `N` is free, then we count up, starting from `0` to `N`, constructing
 % a list by adding a free variable to our list each time a unit is added to
@@ -233,7 +244,7 @@ rotate Ls N Ls' :- if (N > 0)
 
 % 1.20
 pred select-nth i:int, i:list A, o:A, o:list A.
-select-nth N Ls X Rest :- len Prefix {calc (N - 1)}
+select-nth N Ls X Rest :- len Prefix N
                        &  std.append Prefix [X|Suffix] Ls
                        &  std.append Prefix Suffix Rest
                        .
@@ -255,35 +266,38 @@ range N N' [N|Ns] :- range {util.succ N} N' Ns.
 pred select-rnd i:int, i:list A, o:list A.
 pred select-rnd.aux i:int, i:int, i:list A, o:list A.
 select-rnd N Ls Xs :-
-    random.self_init,
-    ( select-rnd.aux N _ _ Xs
-    & select-rnd.aux _ 0 _ Xs
+    ( (select-rnd.aux N _ _ Xs :- !)
+    & (select-rnd.aux _ 0 _ Xs :- !)
     & pi M M' Len Len' Opts Acc X Rest Idx\
-        select-rnd.aux M Len Opts Acc :-
-            random.int Len Idx,
-            select-nth Idx Opts X Rest,
-            util.succ M M',
-            util.succ Len' Len,
-            select-rnd.aux M' Len' Rest [X|Acc]
-    ) => select-rnd.aux 0 {len Ls} Ls []
+      select-rnd.aux M Len Opts Acc :-
+        random.int Len Idx,
+        select-nth Idx Opts X Rest,
+        util.succ M M',
+        util.succ Len' Len,
+        select-rnd.aux M' Len' Rest [X|Acc]
+    ) => (
+      std.length Ls Len0,
+      select-rnd.aux 0 Len0 Ls []
+    )
     .
 
 % 1.24
 pred lotto i:int, i:int, o:list int.
 pred lotto.draw i:int, o:list int.
 lotto Draws Limit Nums :-
-  random.self_init,
   ( lotto.draw Draws Nums
   & pi Draw Draw' N Acc\
-      lotto.draw Draw Acc :-
-        random.int Limit N,
-        util.succ Draw Draw',
-        lotto.draw Draw' [N|Acc]
+    lotto.draw Draw Acc :-
+      random.int Limit N,
+      util.succ Draw Draw',
+      lotto.draw Draw' [N|Acc]
   ) => lotto.draw 0 []
   .
 
 
-% TODO: 1.25
+% 1.25
+pred rnd-permu i:list int, o:list int.
+rnd-permu Ls Permutation :- select-rnd {std.length Ls} Ls Permutation.
 
 }
 
@@ -299,7 +313,8 @@ test P :- Msg is "Test '" ^ {term_to_string P} ^ "' FAILED!"
 shorten list.{ ls, el, one, many }.
 
 pred tests.
-tests :- test (list.last [1, 2, 3, 4] (some 4))
+tests :- random.self_init
+      & test (list.last [1, 2, 3, 4] (some 4))
       & test (list.second-last [1,2,3,4] (some 3))
       & test (list.nth [1,2,3,4] 2 (some 3))
       & test (list.len [1,2,3,4] 4)
@@ -332,11 +347,14 @@ tests :- test (list.last [1, 2, 3, 4] (some 4))
       & test (list.slice 4 8 [1,2,3,4,5,6,7,8,9,10] [5,6,7,8,9])
       & test (list.rotate [1,2,3,4,5,6,7,8] 3 [4,5,6,7,8,1,2,3])
       & test (list.rotate [1,2,3,4,5,6,7,8] -2 [7,8,1,2,3,4,5,6])
-      & test (list.select-nth 2 [1,2,3,4] 2 [1,3,4])
+      & test (list.select-nth 2 [1,2,3,4] 3 [1,2,4])
       & test (list.insert-at 10 2 [1,2,3,4] [1,2,10,3,4])
       & test (list.range 4 9 [4,5,6,7,8,9])
       & test (list.select-rnd 3 [1,2,3,4,5,6,7,8] [_, _, _])
-      & test (list.lotto 3 10 LottoDraw, std.forall LottoDraw (x\x < 10))
+      & test ( list.lotto 3 10 LottoDraw,
+               std.forall LottoDraw (x\x < 10))
+      & test ( list.rnd-permu [1,2,3,4] RndPermu,
+               std.forall RndPermu (x\ std.mem [1,2,3,4] x))
       .
 
 pred main.
